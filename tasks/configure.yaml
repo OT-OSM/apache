@@ -18,7 +18,7 @@
   notify: Reload Apache
 
 - name: Enable new site
-  ansible.builtin.shell: "/usr/sbin/a2ensite /etc/apache2/sites-available/{{ item | basename | regex_replace('\\.j2$', '') }}"
+  ansible.builtin.shell: "/usr/sbin/a2ensite {{ item | basename | regex_replace('\\.j2$', '') }}"
   with_fileglob:
     - "../templates/conf/*.j2"
   notify: Reload Apache
