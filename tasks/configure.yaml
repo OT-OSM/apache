@@ -1,0 +1,29 @@
+---
+- name: Create required directories for Apache
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    mode: '0755'
+  with_items:
+    - /var/www/html
+    - /var/log/apache2
+
+- name: Set up Apache virtualhost
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/etc/apache2/sites-available/{{ item | basename | regex_replace('\\.j2$', '') }}"
+  with_fileglob:
+    - "../templates/conf/*.j2"
+  notify: Reload Apache
+
+- name: Enable new site
+  ansible.builtin.shell: |-
+    /usr/sbin/a2ensite /etc/apache2/sites-available/{{ item | basename | regex_replace('\\.j2$', '') }}
+  with_fileglob:
+    - "../templates/conf/*.j2"
+  notify: Reload Apache
+
+- name: Disable default Apache site
+  ansible.builtin.shell: /usr/sbin/a2dissite 000-default.conf
+  notify: Reload Apache

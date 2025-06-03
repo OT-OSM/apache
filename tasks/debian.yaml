@@ -1,0 +1,5 @@
+---
+- name: Ensuring Apache2 installed on the system
+  ansible.builtin.apt:
+    name: apache2
+    state: present
