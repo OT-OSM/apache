@@ -3,3 +3,10 @@
   ansible.builtin.apt:
     name: apache2
     state: present
+
+- name: Ensuring PHP modules are installed on the system
+  ansible.builtin.apt:
+    name: ["python3-pymysql", "php", "mysql-python", "libapache2-mod-php"]
+    state: present
+  tags:
+    - install_php
