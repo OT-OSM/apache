@@ -8,5 +8,4 @@
   ansible.builtin.apt:
     name: ["python3-pymysql", "php", "mysql-python", "libapache2-mod-php"]
     state: present
-  tags:
-    - install_php
+  when: install_php
