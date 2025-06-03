@@ -2,3 +2,6 @@
 - name: Ensuring Apache2 is installed on Debian OS
   include_tasks: debian.yaml
   when: ansible_os_family == "Debian"
+
+- name: Configure Apache2 on target system
+  include_tasks: configure.yaml
