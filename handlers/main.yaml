@@ -1,7 +1,9 @@
----
-- name: Reload Apache
-  ansible.builtin.systemd_service:
-    name: apache2
-    state: reloaded
-    enabled: true
-  when: ansible_os_family == "Debian"
+- name: start-service
+  service:
+    name: "{{ apache_service }}"
+    state: started
+
+- name: restart-apache
+  service:
+    name: "{{ apache_service }}"
+    state: restarted
