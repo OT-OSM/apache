@@ -1,0 +1,40 @@
+---
+- name: Install Apache on RedHat
+  yum:
+    name: "{{ apache_package }}"
+    state: present
+  notify: start-service
+
+- name: Create document root for domain
+  file:
+    path: "/var/www/{{ http_host }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0755'
+
+- name: Set up virtual host
+  template:
+    src: apacheconf.j2
+    dest: "{{ apache_conf_dir }}/{{ http_conf }}"
+
+- name: Allow HTTP using firewalld (RedHat)
+  firewalld:
+    service: "{{ firewall_rule_redhat.service }}"
+    permanent: "{{ firewall_rule_redhat.permanent }}"
+    state: "{{ firewall_rule_redhat.state }}"
+    immediate: "{{ firewall_rule_redhat.immediate }}"
+
+- name: Copy index file
+  copy:
+    src: index.html
+    dest: "/var/www/{{ http_host }}/index.html"
+
+- name: Set SELinux context
+  sefcontext:
+    target: "/var/www/{{ http_host }}(/.*)?"
+    setype: httpd_sys_content_t
+    state: present
+
+- name: Apply SELinux context
+  command: restorecon -Rv /var/www/{{ http_host }}

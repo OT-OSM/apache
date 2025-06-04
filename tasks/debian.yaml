@@ -1,11 +1,35 @@
 ---
-- name: Ensuring Apache2 installed on the system
-  ansible.builtin.apt:
-    name: apache2
+- name: Install Apache on Debian
+  apt:
+    name: "{{ apache_package }}"
+    update_cache: yes
     state: present
+  notify: start-service
 
-- name: Ensuring PHP modules are installed on the system
-  ansible.builtin.apt:
-    name: ["python3-pymysql", "php", "mysql-python", "libapache2-mod-php"]
-    state: present
-  when: install_php
+- name: Create document root for domain
+  file:
+    path: "/var/www/{{ http_host }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0755'
+
+- name: Set up virtual host
+  template:
+    src: apacheconf.j2
+    dest: "{{ apache_conf_dir }}/{{ http_conf }}"
+
+- name: Enable site
+  command: a2ensite {{ http_conf }}
+  notify: restart-apache
+
+- name: Allow HTTP using UFW (Debian)
+  ufw:
+    rule: "{{ firewall_rule_debian.rule }}"
+    port: "{{ firewall_rule_debian.port }}"
+    proto: "{{ firewall_rule_debian.proto }}"
+
+- name: Copy index file
+  copy:
+    src: index.html
+    dest: "/var/www/{{ http_host }}/index.html"

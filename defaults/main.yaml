@@ -1,5 +1,3 @@
 ---
-app_user: "www-data"
-http_port: 80
-http_host: opstree.example.com
-install_php: false
+user: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
+group: "{{ user }}"
