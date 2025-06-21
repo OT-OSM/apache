@@ -1,7 +1,15 @@
 ---
-- name: Ensuring Apache2 is installed on Debian OS
-  include_tasks: debian.yaml
-  when: ansible_os_family == "Debian"
+- name: Include OS-specific tasks
+  include_tasks: "{{ ansible_facts['os_family'] | lower }}.yml"
 
-- name: Configure Apache2 on target system
-  include_tasks: configure.yaml
+# Open firewall for Apache 
+- name: Open Apache port in firewall
+  ufw:
+    rule: allow
+    port: "{{ Apache_port }}"
+    proto: tcp
+  when: firewall_enabled | default(false)
+
+# Notify handlers
+- name: Notify restart handler
+  meta: flush_handlers
